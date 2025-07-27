@@ -1,14 +1,20 @@
-from fastapi import FastAPI,status, Response
+from fastapi import FastAPI,status, Response, Depends
 from fastapi.params import Body
 from pydantic import BaseModel
 from typing import Optional
 import psycopg2
 from psycopg2.extras import RealDictCursor
 import time
+from sqlalchemy.orm import Session 
+from . import models
+from .database import engine, get_db
 
 
-
+models.Base.metadata.create_all(bind=engine)
 app = FastAPI()
+
+
+
 
 #Connection to our database
 while True:
@@ -91,5 +97,7 @@ def update_post(id: int, updated_post: post, response: Response):
         response.status_code = status.HTTP_404_NOT_FOUND
         return {"error": f"Post with ID {id} not found"}
 
-
+@app.get("/sqlalchemy")
+def test_posts(db: Session = Depends(get_db)):
+    return {"status" : "Success"}
  
