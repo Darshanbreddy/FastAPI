@@ -67,10 +67,12 @@ def get_post(id:int, response: Response):   #converting it into a int because st
 @app.delete("/posts/{id}")
 def delete_posts(id: int, response: Response):
     
-    cursor.execute("""DELETE from posts WHERE id= %s """,(str(id)))  #converting back to a string so that we do not get error int doesn't support indexing
+    cursor.execute("""DELETE from posts WHERE id= %s RETURNING * """,(str(id)))  #converting back to a string so that we do not get error int doesn't support indexing
+    deleted=cursor.fetchone()
     con.commit()
 
-    if post:
+
+    if deleted:
         return {"message": "deleted"}
     else:
         response.status_code = status.HTTP_404_NOT_FOUND
@@ -79,14 +81,15 @@ def delete_posts(id: int, response: Response):
 
 @app.put("/posts/{id}")
 def update_post(id: int, updated_post: post, response: Response):
-    for index, post in enumerate(post_creation):
-        if post["id"] == id:
-            # Convert updated_post to dict and keep the same ID
-            post_dict = updated_post.dict()
-            post_dict["id"] = id
-            post_creation[index] = post_dict
-            return {"message": f"Post with ID {id} updated", "data": post_dict}
+    cursor.execute(""" UPDATE posts set title=%s, content=%s, published=%s WHERE id=%s RETURNING *""",(updated_post.title, updated_post.content, updated_post.published, str(id) ))
+    update= cursor.fetchone()
+    con.commit()
 
-    response.status_code = status.HTTP_404_NOT_FOUND
-    return {"error": f"Post with ID {id} not found"}
+    if update:
+        return {"message": "Updated"}
+    else:
+        response.status_code = status.HTTP_404_NOT_FOUND
+        return {"error": f"Post with ID {id} not found"}
+
+
  
