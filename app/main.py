@@ -8,6 +8,10 @@ import time
 from sqlalchemy.orm import Session 
 from . import models, schemas
 from .database import engine, get_db
+from . import utils
+from .routes import users, posts
+
+
 
 
 models.Base.metadata.create_all(bind=engine)   #to create all the models(DB)
@@ -29,6 +33,9 @@ while True:
         time.sleep(5)
 
 
+app.include_router(posts.router)
+app.include_router(users.router)
+
 
 @app.get("/")
 def root():
@@ -36,69 +43,5 @@ def root():
 
 
 
-@app.get("/posts",response_model=List[schemas.post])
-def get_posts(db: Session = Depends(get_db)):
-    posts=db.query(models.Post).all()     
-    return posts
 
 
-
-@app.post("/posts", response_model=schemas.post)
-def create_post(new_post:schemas.postcreate,db: Session = Depends(get_db)):    #referencing the post calss
-   
-    newpost=models.Post(**new_post.dict())       #Unpacking the dic so that it automatically assigns the value
-    db.add(newpost)       
-    db.commit()           #Similar to conn.commit()
-    db.refresh(newpost)   #similar to adding RETURNING*
-
-    return newpost
-
-@app.get("/posts/{id}", response_model=schemas.post)
-def get_post(id: int, db: Session = Depends(get_db)):
-    post = db.query(models.Post).filter(models.Post.id == id).first()
-
-    if post is None:
-        raise HTTPException(status_code=404, detail=f"Post with ID {id} not found")
-
-    return post
-    
-    
-@app.delete("/posts/{id}")
-def delete_posts(id: int, response: Response,db: Session = Depends(get_db)):
-    
-   
-    deleted= db.query(models.Post).filter(models.Post.id==id)
-
-
-    if deleted.first():
-        deleted.delete(synchronize_session=False)
-        db.commit()
-        return {"message": "deleted"}
-    else:
-        response.status_code = status.HTTP_404_NOT_FOUND
-        return {"error": f"Post with ID {id} not found"}
-
-
-@app.put("/posts/{id}", response_model=schemas.post)
-def update_post(id: int, updated_post: schemas.postcreate, db: Session = Depends(get_db)):
-
-    post_query = db.query(models.Post).filter(models.Post.id == id)
-    post = post_query.first()
-
-    if post is None:
-        raise HTTPException(status_code=404, detail=f"Post with ID {id} not found")
-
-    post_query.update(updated_post.dict(), synchronize_session=False)
-    db.commit()
-
-    return post_query.first()
-
-
-@app.post("/users",status_code=status.HTTP_201_CREATED, response_model=schemas.Userout)
-def create_user(user: schemas.UserCreate,db: Session = Depends(get_db)):
-    new_user= models.User(**user.dict())
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
-
-    return new_user
