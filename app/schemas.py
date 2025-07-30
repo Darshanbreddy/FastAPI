@@ -1,4 +1,5 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
+from datetime import datetime
 
 # class post(BaseModel):  #creating a class called post which extends the basemodel of pydantic
 #     title: str          #what type
@@ -23,3 +24,24 @@ class postbase(BaseModel):
 
 class postcreate(postbase):
     pass 
+
+class post(postbase):         #this is for the response model
+    # title: str              #inherites these three from postbase class, adding created at only for te response model
+    # content: str
+    # published: bool
+    created_at: datetime         
+
+    class Config:               #pydantic only works on dict so we are converting the sqlalchemy to dict here
+        orm_model= True
+
+
+class UserCreate(BaseModel):
+    email: EmailStr
+    password: str
+
+class Userout(BaseModel):
+    id: int
+    email: EmailStr
+
+    class Config:               #pydantic only works on dict so we are converting the sqlalchemy to dict here
+        orm_model= True
