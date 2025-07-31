@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from . import models, schemas
 from .database import engine, get_db
 from . import utils
-from .routes import users, posts
+from .routes import users, posts, auth
 
 
 
@@ -35,11 +35,14 @@ while True:
 
 app.include_router(posts.router)
 app.include_router(users.router)
+app.include_router(auth.router)
 
 
 @app.get("/")
 def root():
     return {"message": "Welocome to my API"}
+
+
 
 
 

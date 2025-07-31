@@ -1,4 +1,4 @@
-from .. import models,schemas
+from .. import models,schemas,outh2
 from ..database import  get_db
 from fastapi import status, Response, Depends, HTTPException, APIRouter
 from typing import  List
@@ -12,15 +12,16 @@ router=APIRouter(
 
 
 @router.get("/",response_model=List[schemas.post])
-def get_posts(db: Session = Depends(get_db)):
+def get_posts(db: Session = Depends(get_db), user_id: int= Depends(outh2.get_current_user)):
+    print(user_id)
     posts=db.query(models.Post).all()     
     return posts
 
 
 
 @router.post("/", response_model=schemas.post)
-def create_post(new_post:schemas.postcreate,db: Session = Depends(get_db)):    #referencing the post calss
-   
+def create_post(new_post:schemas.postcreate,db: Session = Depends(get_db), user_id: int= Depends(outh2.get_current_user)):    #referencing the post calss
+    print(user_id)
     newpost=models.Post(**new_post.dict())       #Unpacking the dic so that it automatically assigns the value
     db.add(newpost)       
     db.commit()           #Similar to conn.commit()
@@ -29,7 +30,9 @@ def create_post(new_post:schemas.postcreate,db: Session = Depends(get_db)):    #
     return newpost
 
 @router.get("/{id}", response_model=schemas.post)
-def get_post(id: int, db: Session = Depends(get_db)):
+def get_post(id: int, db: Session = Depends(get_db),user_id: int= Depends(outh2.get_current_user)):
+    print(user_id)
+             
     post = db.query(models.Post).filter(models.Post.id == id).first()
 
     if post is None:
@@ -39,9 +42,9 @@ def get_post(id: int, db: Session = Depends(get_db)):
     
     
 @router.delete("/{id}")
-def delete_posts(id: int, response: Response,db: Session = Depends(get_db)):
+def delete_posts(id: int, response: Response,db: Session = Depends(get_db),user_id: int= Depends(outh2.get_current_user)):
     
-   
+    print(user_id)
     deleted= db.query(models.Post).filter(models.Post.id==id)
 
 
@@ -55,8 +58,8 @@ def delete_posts(id: int, response: Response,db: Session = Depends(get_db)):
 
 
 @router.put("/{id}", response_model=schemas.post)
-def update_post(id: int, updated_post: schemas.postcreate, db: Session = Depends(get_db)):
-
+def update_post(id: int, updated_post: schemas.postcreate, db: Session = Depends(get_db),user_id: int= Depends(outh2.get_current_user)):
+    print(user_id)
     post_query = db.query(models.Post).filter(models.Post.id == id)
     post = post_query.first()
 

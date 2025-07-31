@@ -1,5 +1,7 @@
 from pydantic import BaseModel, EmailStr
 from datetime import datetime
+from typing import Optional
+
 
 # class post(BaseModel):  #creating a class called post which extends the basemodel of pydantic
 #     title: str          #what type
@@ -45,3 +47,14 @@ class Userout(BaseModel):
 
     class Config:               #pydantic only works on dict so we are converting the sqlalchemy to dict here
         orm_model= True
+
+class Userlogin(BaseModel):
+    email: EmailStr
+    password: str
+
+class token(BaseModel):
+    access_token:str
+    token_type: str
+
+class token_data(BaseModel):
+    id: Optional[str] = None
