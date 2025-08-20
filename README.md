@@ -23,7 +23,6 @@ A secure, high-performance RESTful API built using **FastAPI**, **PostgreSQL**, 
 - **Pydantic** – schema validation
 - **JWT / OAuth2** – secure authentication
 - **bcrypt** – password hashing
-
 ---
 
 ## 📁 Project Structure
