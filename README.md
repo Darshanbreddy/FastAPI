@@ -12,7 +12,6 @@ A secure, high-performance RESTful API built using **FastAPI**, **PostgreSQL**, 
 - 🧪 Input validation with Pydantic
 - 📂 Modular FastAPI structure with routers
 - 📑 Auto-generated API docs with Swagger UI
-
 ---
 
 ## 🛠️ Tech Stack
